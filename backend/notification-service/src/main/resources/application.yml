@@ -30,7 +30,18 @@ spring:
 
 firebase:
   project-id: ${FIREBASE_PROJECT_ID:your-project-id}
-  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:/app/config/firebase-service-account.json}
+  service-account-path: firebase-service-account.json
+
+services:
+  user-service:
+    url: ${USER_SERVICE_URL:http://localhost:8082}
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis_secret_password
 
 kafka:
   topics:
@@ -57,3 +68,7 @@ spring:
     password: ${POSTGRES_PASSWORD:grab_secret_password}
   kafka:
     bootstrap-servers: kafka:9092
+  data:
+    redis:
+      host: redis
+      password: ${REDIS_PASSWORD:redis_secret_password}
