@@ -1,0 +1,49 @@
+# ─── Environment ───────────────────────────
+infra/docker/.env
+**/firebase-service-account.json
+
+# ─── Java / Maven ───────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# ─── Flutter / Dart ─────────────────────────
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/android/.gradle/
+mobile/android/app/google-services.json
+mobile/ios/GoogleService-Info.plist
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+
+# ─── IDE ────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── OS ────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Kubernetes Secrets ─────────────────────
+infra/k8s/secrets/app-secrets.yml
+
+# ─── Logs ───────────────────────────────────
+*.log
+logs/

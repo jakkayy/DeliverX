@@ -1,0 +1,128 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - AuthFilter
+
+        - id: order-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - AuthFilter
+
+        - id: tracking-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/tracking/**
+          filters:
+            - AuthFilter
+
+        - id: payment-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - AuthFilter
+
+        - id: notification-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - AuthFilter
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: redis_secret_password
+
+jwt:
+  secret: ${JWT_SECRET:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfZ3JhYl9kZWxpdmVyeV9hcHBfMjAyNA==}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://auth-service:8081
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: user-service
+          uri: http://user-service:8082
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - AuthFilter
+
+        - id: order-service
+          uri: http://order-service:8083
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - AuthFilter
+
+        - id: tracking-service
+          uri: http://tracking-service:8084
+          predicates:
+            - Path=/api/v1/tracking/**
+          filters:
+            - AuthFilter
+
+        - id: payment-service
+          uri: http://payment-service:8085
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - AuthFilter
+
+        - id: notification-service
+          uri: http://notification-service:8086
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - AuthFilter
+
+  data:
+    redis:
+      host: redis
+      password: ${REDIS_PASSWORD:redis_secret_password}

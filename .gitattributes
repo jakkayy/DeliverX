@@ -1,0 +1,26 @@
+# Force LF line endings for all files
+* text=auto eol=lf
+
+# Explicitly LF for these file types (critical for Docker/Linux)
+*.sh text eol=lf
+Dockerfile text eol=lf
+Makefile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.xml text eol=lf
+*.java text eol=lf
+*.dart text eol=lf
+*.sql text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.properties text eol=lf
+*.gitignore text eol=lf
+
+# Binary files — no conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary
+*.zip binary

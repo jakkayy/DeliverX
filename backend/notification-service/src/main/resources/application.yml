@@ -1,0 +1,59 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/grab_db
+    username: grab_user
+    password: grab_secret_password
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: notification-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "com.grab.*"
+
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID:your-project-id}
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:/app/config/firebase-service-account.json}
+
+kafka:
+  topics:
+    order-created: order.created
+    order-accepted: order.accepted
+    order-completed: order.completed
+    order-cancelled: order.cancelled
+    payment-completed: payment.completed
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:grab_db}
+    username: ${POSTGRES_USER:grab_user}
+    password: ${POSTGRES_PASSWORD:grab_secret_password}
+  kafka:
+    bootstrap-servers: kafka:9092
