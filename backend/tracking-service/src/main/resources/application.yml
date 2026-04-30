@@ -18,10 +18,15 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 redis:
-  keys:
-    driver-location: "driver:location:"
-    driver-geo: "drivers:geo"
-    order-tracking: "order:tracking:"
+  key:
+    driver-location-prefix: "driver:location:"
+    order-channel-prefix: "order:channel:"
+
+kafka:
+  topics:
+    order-accepted: order.accepted
+    order-completed: order.completed
+    order-cancelled: order.cancelled
 
 management:
   endpoints:
