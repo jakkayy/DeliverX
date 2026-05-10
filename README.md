@@ -1,4 +1,4 @@
-# 🚀 Smart Delivery App (Grab-like)
+# 🚀 Smart Delivery App
 
 A microservices-based smart delivery platform built with Flutter, Java Spring Boot, PostgreSQL, Redis, and Kafka — deployed on Kubernetes.
 
