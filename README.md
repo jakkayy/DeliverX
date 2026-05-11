@@ -1,6 +1,6 @@
-# 🚀 Smart Delivery App
+# DeliverX — Smart Delivery App
 
-A microservices-based smart delivery platform built with Flutter, Java Spring Boot, PostgreSQL, Redis, and Kafka — deployed on Kubernetes.
+แพลตฟอร์มรับส่งพัสดุแบบ real-time พัฒนาด้วยสถาปัตยกรรม Microservices ประกอบด้วย Flutter, Java Spring Boot, PostgreSQL, Redis และ Kafka — deploy บน Kubernetes
 
 ## Tech Stack
 
@@ -19,20 +19,20 @@ A microservices-based smart delivery platform built with Flutter, Java Spring Bo
 
 ## Services
 
-| Service | Port | Description |
+| Service | Port | คำอธิบาย |
 |---|---|---|
-| api-gateway | 8080 | Single entry point, routing, rate limiting |
-| auth-service | 8081 | JWT auth, login, register, refresh token |
-| user-service | 8082 | Customer & driver profile management |
-| order-service | 8083 | Order lifecycle (create → deliver) |
-| tracking-service | 8084 | Real-time GPS tracking via WebSocket |
-| payment-service | 8085 | Payment processing |
-| notification-service | 8086 | Push notifications (FCM) |
+| api-gateway | 8080 | จุดเข้าหลัก, routing, rate limiting |
+| auth-service | 8081 | ยืนยันตัวตนด้วย JWT, login, register, refresh token |
+| user-service | 8082 | จัดการโปรไฟล์ลูกค้าและคนส่งของ |
+| order-service | 8083 | วงจรชีวิตคำสั่งซื้อ (สร้าง → จัดส่ง) |
+| tracking-service | 8084 | ติดตาม GPS แบบ real-time ผ่าน WebSocket |
+| payment-service | 8085 | ประมวลผลการชำระเงิน |
+| notification-service | 8086 | ส่ง push notification ผ่าน FCM |
 
 ## Project Structure
 
 ```
-grab/
+DeliverX/
 ├── mobile/                     # Flutter App
 ├── backend/
 │   ├── pom.xml                 # Parent Maven POM
@@ -44,11 +44,11 @@ grab/
 │   ├── payment-service/
 │   └── notification-service/
 ├── database/
-│   ├── schema.sql              # DDL
-│   └── seed.sql                # Initial data
+│   ├── schema.sql              # สร้างตารางฐานข้อมูล
+│   └── seed.sql                # ข้อมูลเริ่มต้น
 ├── infra/
 │   ├── docker/
-│   │   ├── docker-compose.yml  # Local development
+│   │   ├── docker-compose.yml  # สำหรับรันบนเครื่อง local
 │   │   └── .env.example
 │   └── k8s/                    # Kubernetes manifests
 │       ├── namespaces/
@@ -74,41 +74,34 @@ grab/
 - Flutter 3.x
 - Maven 3.9+
 
-### 1. Start Infrastructure
+### 1. เปิด Infrastructure
 ```bash
 make infra-up
 ```
 
-### 2. Run All Backend Services
+### 2. รัน Backend Services ทั้งหมด
 ```bash
 make backend-up
 ```
 
-### 3. Run Flutter App
+### 3. รัน Flutter App
 ```bash
 make mobile-run
 ```
 
 ### Useful Commands
 ```bash
-make infra-up        # Start PostgreSQL, Redis, Kafka
-make infra-down      # Stop infrastructure
-make backend-up      # Start all Spring Boot services
-make backend-down    # Stop all Spring Boot services
-make logs            # Tail all logs
-make db-migrate      # Run database migrations
-```
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in values:
-```bash
-cp infra/docker/.env.example infra/docker/.env
+make infra-up        # เปิด PostgreSQL, Redis, Kafka
+make infra-down      # ปิด infrastructure
+make backend-up      # เปิด Spring Boot services ทั้งหมด
+make backend-down    # ปิด Spring Boot services ทั้งหมด
+make logs            # ดู logs ทั้งหมด
+make db-migrate      # รัน database migrations
 ```
 
 ## API Documentation
 
-After starting services, Swagger UI is available at:
+หลังจากเปิด services แล้ว เข้าดู Swagger UI ได้ที่:
 - API Gateway: http://localhost:8080/swagger-ui.html
 - Auth Service: http://localhost:8081/swagger-ui.html
 
