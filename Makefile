@@ -1,4 +1,4 @@
-.PHONY: help infra-up infra-down infra-logs backend-build backend-up backend-down logs db-migrate mobile-run
+.PHONY: help infra-up infra-down infra-logs backend-build backend-up backend-down logs db-migrate mobile-run tidy
 
 COMPOSE_DIR = infra/docker
 COMPOSE_FILE = $(COMPOSE_DIR)/docker-compose.yml
@@ -16,6 +16,7 @@ help:
 	@echo "  make db-migrate      Run database schema"
 	@echo "  make mobile-run      Run Flutter app"
 	@echo "  make clean           Remove all containers and volumes"
+	@echo "  make tidy            Run go mod tidy for all backend services"
 
 infra-up:
 	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d postgres redis zookeeper kafka kafka-ui pgadmin
@@ -53,6 +54,12 @@ db-migrate:
 
 mobile-run:
 	cd mobile && flutter run
+
+tidy:
+	@for dir in auth-service user-service order-service tracking-service payment-service notification-service api-gateway; do \
+		echo "==> $$dir"; \
+		cd backend/$$dir && go mod tidy && cd ../..; \
+	done
 
 clean:
 	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans

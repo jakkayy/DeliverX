@@ -1,15 +1,12 @@
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM golang:1.22-alpine AS builder
 WORKDIR /app
-COPY pom.xml .
-COPY ../pom.xml ../pom.xml
-RUN mvn dependency:go-offline -B
-COPY src ./src
-RUN mvn clean package -DskipTests -B
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o tracking-service ./cmd/main.go
 
-FROM eclipse-temurin:17-jre-alpine
+FROM alpine:3.19
 WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=builder /app/target/*.jar app.jar
-USER appuser
+COPY --from=builder /app/tracking-service .
 EXPOSE 8084
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+CMD ["./tracking-service"]

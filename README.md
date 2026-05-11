@@ -1,41 +1,66 @@
-# DeliverX — Smart Delivery App
+# DeliverX
 
-แพลตฟอร์มรับส่งพัสดุแบบ real-time พัฒนาด้วยสถาปัตยกรรม Microservices ประกอบด้วย Flutter, Java Spring Boot, PostgreSQL, Redis และ Kafka — deploy บน Kubernetes
+โปรเจคส่วนตัวที่ทำขึ้นมาเพื่อฝึก microservices architecture โดยจำลองแอปส่งของคล้ายๆ Grab / Lalamove ครับ
+
+stack หลักเป็น Go + Gin สำหรับ backend, Flutter สำหรับ mobile และใช้ PostgreSQL, Redis, Kafka เป็น infrastructure — ทั้งหมดรันผ่าน Docker และ deploy บน Kubernetes
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Mobile | Flutter 3.x |
-| API Gateway | Spring Cloud Gateway |
-| Backend | Java 17 + Spring Boot 3.x (Microservices) |
-| Primary DB | PostgreSQL 15 + PostGIS |
+| API Gateway | Go + Gin |
+| Backend | Go 1.22+ + Gin (Microservices) |
+| Database | PostgreSQL 15 + PostGIS |
 | Cache / Realtime | Redis 7 |
 | Message Broker | Apache Kafka |
 | Container | Docker + Docker Compose |
-| Orchestration | Kubernetes (K8s) |
+| Orchestration | Kubernetes |
 | Monitoring | Prometheus + Grafana |
 | CI/CD | GitHub Actions |
 
+---
+
 ## Services
 
-| Service | Port | คำอธิบาย |
+แบ่งออกเป็น 7 services ตาม domain ครับ
+
+| Service | Port | หน้าที่ |
 |---|---|---|
-| api-gateway | 8080 | จุดเข้าหลัก, routing, rate limiting |
-| auth-service | 8081 | ยืนยันตัวตนด้วย JWT, login, register, refresh token |
-| user-service | 8082 | จัดการโปรไฟล์ลูกค้าและคนส่งของ |
-| order-service | 8083 | วงจรชีวิตคำสั่งซื้อ (สร้าง → จัดส่ง) |
-| tracking-service | 8084 | ติดตาม GPS แบบ real-time ผ่าน WebSocket |
-| payment-service | 8085 | ประมวลผลการชำระเงิน |
-| notification-service | 8086 | ส่ง push notification ผ่าน FCM |
+| api-gateway | 8080 | รับ request ทั้งหมด แล้ว proxy ไปแต่ละ service + validate JWT |
+| auth-service | 8081 | register, login, refresh token, logout |
+| user-service | 8082 | จัดการ profile ของลูกค้าและคนขับ |
+| order-service | 8083 | สร้างและติดตาม order ตั้งแต่ต้นจนจบ |
+| tracking-service | 8084 | รับ GPS จากคนขับแบบ real-time ผ่าน WebSocket + Redis GEO |
+| payment-service | 8085 | จัดการการชำระเงิน |
+| notification-service | 8086 | ฟัง event จาก Kafka แล้วยิง push notification ผ่าน FCM |
+
+---
 
 ## Project Structure
 
+โครงสร้างของแต่ละ service จะเหมือนกันหมดครับ แบบนี้
+
+```
+<service>/
+├── cmd/main.go          # entry point
+├── config/              # อ่าน env vars
+├── internal/
+│   ├── handler/         # Gin routes
+│   ├── service/         # business logic
+│   ├── repository/      # query DB
+│   └── model/           # struct + GORM
+└── go.mod
+```
+
+ภาพรวมทั้งโปรเจค
+
 ```
 DeliverX/
-├── mobile/                     # Flutter App
+├── mobile/
 ├── backend/
-│   ├── pom.xml                 # Parent Maven POM
 │   ├── api-gateway/
 │   ├── auth-service/
 │   ├── user-service/
@@ -44,68 +69,58 @@ DeliverX/
 │   ├── payment-service/
 │   └── notification-service/
 ├── database/
-│   ├── schema.sql              # สร้างตารางฐานข้อมูล
-│   └── seed.sql                # ข้อมูลเริ่มต้น
+│   ├── schema.sql
+│   └── seed.sql
 ├── infra/
 │   ├── docker/
-│   │   ├── docker-compose.yml  # สำหรับรันบนเครื่อง local
+│   │   ├── docker-compose.yml
 │   │   └── .env.example
-│   └── k8s/                    # Kubernetes manifests
-│       ├── namespaces/
-│       ├── deployments/
-│       ├── services/
-│       ├── ingress/
-│       ├── configmaps/
-│       ├── secrets/
-│       └── hpa/
+│   └── k8s/
 ├── monitoring/
-│   ├── prometheus/
-│   └── grafana/
-└── .github/
-    └── workflows/
-        └── ci.yml
+└── .github/workflows/
 ```
 
-## Quick Start (Local)
+---
 
-### Prerequisites
-- Docker Desktop
-- Java 17+
-- Flutter 3.x
-- Maven 3.9+
+## รันบนเครื่องตัวเอง
 
-### 1. เปิด Infrastructure
+ต้องมี Docker Desktop กับ Go 1.22+ ติดตั้งไว้ก่อนครับ Flutter ด้วยถ้าจะรัน mobile
+
+**1. เปิด infrastructure (PostgreSQL, Redis, Kafka)**
 ```bash
 make infra-up
 ```
 
-### 2. รัน Backend Services ทั้งหมด
+**2. รัน backend ทั้งหมด**
 ```bash
 make backend-up
 ```
 
-### 3. รัน Flutter App
+**3. รัน Flutter app**
 ```bash
 make mobile-run
 ```
 
-### Useful Commands
+ก่อนรันครั้งแรกอย่าลืม copy env file ด้วยนะครับ
+```bash
+cp infra/docker/.env.example infra/docker/.env
+```
+
+### คำสั่งที่ใช้บ่อย
+
 ```bash
 make infra-up        # เปิด PostgreSQL, Redis, Kafka
 make infra-down      # ปิด infrastructure
-make backend-up      # เปิด Spring Boot services ทั้งหมด
-make backend-down    # ปิด Spring Boot services ทั้งหมด
-make logs            # ดู logs ทั้งหมด
-make db-migrate      # รัน database migrations
+make backend-up      # เปิด services ทั้งหมด
+make backend-down    # ปิด services ทั้งหมด
+make logs            # ดู logs
+make db-migrate      # migrate database
+make tidy            # go mod tidy ทุก service พร้อมกัน
 ```
 
-## API Documentation
+---
 
-หลังจากเปิด services แล้ว เข้าดู Swagger UI ได้ที่:
-- API Gateway: http://localhost:8080/swagger-ui.html
-- Auth Service: http://localhost:8081/swagger-ui.html
-
-## Architecture Overview
+## Architecture
 
 ```
 Flutter App
@@ -114,8 +129,8 @@ API Gateway (:8080)
     ├── Auth Service (:8081)
     ├── User Service (:8082)
     ├── Order Service (:8083)    →  Kafka  →  Notification Service (:8086)
-    ├── Tracking Service (:8084) ↔  Redis Pub/Sub
-    └── Payment Service (:8085)
+    ├── Tracking Service (:8084) ↔  Redis GEO / WebSocket
+    └── Payment Service (:8085)  →  Kafka  →  Notification Service (:8086)
              ↓
         PostgreSQL + Redis
 ```
